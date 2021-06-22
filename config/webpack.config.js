@@ -1,6 +1,7 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const Webpack = require("webpack");
 
@@ -22,7 +23,7 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          "vue-style-loader",
+          MiniCssExtractPlugin.loader,
           { loader: "css-loader", options: { importLoaders: 1 } },
           {
             loader: "postcss-loader",
@@ -33,7 +34,7 @@ module.exports = {
       {
         test: /\.(sass|scss)$/,
         use: [
-          "vue-style-loader",
+          MiniCssExtractPlugin.loader,
           { loader: "css-loader", options: { importLoaders: 1 } },
           {
             loader: "postcss-loader",
@@ -69,6 +70,7 @@ module.exports = {
     new HTMLWebpackPlugin({
       template: path.resolve(__dirname, "../public/index.html")
     }),
+    new MiniCssExtractPlugin(),
     new VueLoaderPlugin(),
     new Webpack.HotModuleReplacementPlugin()
   ]
