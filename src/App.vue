@@ -1,6 +1,6 @@
 <template>
   <div class="count" @click="onClick">
-    <span class="number">{{ count }}</span>
+    <span class="number">这是多少：{{ count }}</span>
   </div>
 </template>
 

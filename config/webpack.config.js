@@ -3,27 +3,29 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
-const Webpack = require("webpack");
+
+const isDevelopment = process.argv.indexOf("--mode=production") === -1;
 
 module.exports = {
-  mode: "development", // 开发模式
-  entry: ["@babel/polyfill", path.resolve(__dirname, "../src/index.js")], // 打包的起点
+  entry: [
+    isDevelopment && "@babel/polyfill",
+    path.resolve(__dirname, "../src/index.js")
+  ].filter(Boolean), // 打包的起点
   output: {
-    filename: "[name].[hash:8].js", // 打包后文件名
+    filename: "js/[name].[hash:8].js", // 打包后文件名
     path: path.resolve(__dirname, "../dist") // 输出目录
-  },
-  devServer: {
-    contentBase: "../dist", // 服务器内容的来源
-    hot: true, // 是否热更新
-    open: true, // 是否自动在浏览器打开
-    port: "3000" // 端口号
   },
   module: {
     rules: [
       {
         test: /\.css$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          {
+            loader: isDevelopment
+              ? "vue-style-loader"
+              : MiniCssExtractPlugin.loader,
+            options: { hmr: isDevelopment }
+          },
           { loader: "css-loader", options: { importLoaders: 1 } },
           {
             loader: "postcss-loader",
@@ -34,7 +36,12 @@ module.exports = {
       {
         test: /\.(sass|scss)$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          {
+            loader: isDevelopment
+              ? "vue-style-loader"
+              : MiniCssExtractPlugin.loader,
+            options: { hmr: isDevelopment }
+          },
           { loader: "css-loader", options: { importLoaders: 1 } },
           {
             loader: "postcss-loader",
@@ -60,7 +67,7 @@ module.exports = {
     // 创建 import 或 resolve 的别名
     alias: {
       "@": path.resolve(__dirname, "../src"),
-      vue$: "vue/dist/vue.runtime.esm.js"
+      vue$: "vue/dist/vue.runtime.esm"
     },
     // 尝试按顺序解析后缀名
     extensions: [".vue", "..."]
@@ -70,8 +77,7 @@ module.exports = {
     new HTMLWebpackPlugin({
       template: path.resolve(__dirname, "../public/index.html")
     }),
-    new MiniCssExtractPlugin(),
-    new VueLoaderPlugin(),
-    new Webpack.HotModuleReplacementPlugin()
+    new MiniCssExtractPlugin({ filename: "style/[name].[hash].css" }),
+    new VueLoaderPlugin()
   ]
 };
